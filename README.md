@@ -1,8 +1,6 @@
-# web-extension-typings-generator
+# webext-typings-generator
 
-Generates a TypeScript typings file (`.d.ts`) from a folder of `.json` API schema files, as provided in [thunderbird/webext-schemas](https://github.com/thunderbird/webext-schemas) or can be found in the [Firefox codebase](https://github.com/mozilla/gecko-dev) in the folders `/browser/components/extensions/schemas` and `/toolkit/components/extensions/schemas`.
-
-The structure and API Schema is documented in [WebExtensions API Development](https://firefox-source-docs.mozilla.org/toolkit/components/extensions/webextensions/index.html).
+Generates a TypeScript typings file (`.d.ts`) from Thunderbird's annotated API schema files, as provided in [thunderbird/webext-annotated-schemas](https://github.com/thunderbird/webext-annotated-schemas)
 
 ## Usage
 
@@ -17,6 +15,10 @@ Usage: generate-web-extension-typings --schemaDir <dir> --outfile <file>
   --help               Show this help message
 ```
 
+## Acknowledgements
+
+This project is a fork of [web-extension-typings-generator](https://github.com/arndissler/web-extension-typings-generator) by Arnd Issler, who did most of the work. The Thunderbird team is continuing his great effort, adjusting it to be compatible with Thunderbird's annotated schema files.
+
 ## License
 
-`web-extension-typings-generator` is licensed under MPL 2.0.
+`webext-typings-generator` is licensed under MPL 2.0.
