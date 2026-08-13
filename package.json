@@ -1,38 +1,45 @@
 {
-  "name": "web-extension-typings-generator",
+  "name": "webext-typings-generator",
   "version": "0.1.0",
-  "description": "Simple typings generator for Thunderbird WebExtension schema",
+  "description": "Generates TypeScript typings from Thunderbird's annotated WebExtension API schemas",
   "main": "dist/index.js",
   "bin": {
-    "generate-web-extension-typings": "dist/cli.js"
+    "generate-webext-typings": "dist/cli.js"
   },
   "files": [
     "dist"
   ],
-  "scripts": {
-    "start": "ts-node-esm src/cli.ts",
-    "build": "tsc"
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thunderbird/webext-typings-generator.git"
   },
-  "author": "Arnd Issler <email@arndissler.net>",
+  "bugs": {
+    "url": "https://github.com/thunderbird/webext-typings-generator/issues"
+  },
+  "homepage": "https://github.com/thunderbird/webext-typings-generator#readme",
+  "keywords": [
+    "thunderbird",
+    "webextension",
+    "typescript",
+    "typings",
+    "messenger"
+  ],
+  "scripts": {
+    "start": "npm run build && node dist/cli.js",
+    "start:ts": "ts-node src/cli.ts",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc",
+    "prepublishOnly": "npm run build"
+  },
+  "author": "Thunderbird",
+  "contributors": [
+    "Arnd Issler <email@arndissler.net> (original author)"
+  ],
   "license": "MPL-2.0",
   "dependencies": {
     "typescript": "^5.6.2"
   },
   "devDependencies": {
     "ts-node": "^10.9.2"
-  },
-  "funding": [
-    {
-      "type": "github",
-      "url": "https://github.com/sponsors/arndissler"
-    },
-    {
-      "type": "patreon",
-      "url": "https://www.patreon.com/arndissler/about"
-    },
-    {
-      "type": "paypal",
-      "url": "https://www.paypal.com/donate?hosted_button_id=F4C4A93H2KFYA"
-    }
-  ]
+  }
 }

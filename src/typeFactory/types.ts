@@ -155,7 +155,7 @@ export type WebExtensionSchemaMapping = {
     events: any[];
     functions: FunctionType[];
     permissions: string[];
-    properties: any[];
+    properties: Record<string, any>;
     description: string;
     sourceFile: string;
   };
