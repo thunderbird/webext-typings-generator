@@ -21,6 +21,15 @@ npm-debug.log
 *.zip
 *.tar.gz
 
+# Generated typings
+/*.d.ts
+
+# OS files
+.DS_Store
+
+# Local editor/agent settings (per-developer, not shared)
+.claude/settings.local.json
+
 # dotenv environment variable files
 .env
 .env.development.local

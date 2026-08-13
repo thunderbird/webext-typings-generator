@@ -4,16 +4,26 @@ Generates a TypeScript typings file (`.d.ts`) from Thunderbird's annotated API s
 
 ## Usage
 
+The generator fetches the schemas itself; pick a channel branch or a version tag:
+
 ```sh
-Generate typings file from web extension schema files.
-
-Usage: generate-web-extension-typings --schemaDir <dir> --outfile <file>
-
-  --schemaDir <dir>    The directory containing the schema files (*.json)
-  --outfile <file>     The output file to write the typings to
-  --force              Create the directories if they does not exist
-  --help               Show this help message
+npm install && npm run build
+node dist/cli.js --ref release-mv3 --outfile .out/messenger.d.ts --force
 ```
+
+```
+Wrote .out/messenger.d.ts
+  Thunderbird version: 153.0.3
+  Package version:     153.0.0
+  Manifest version:    3
+  Channel:             release
+  Namespaces:          66
+```
+
+Run `node dist/cli.js --help` for the full option list.
+
+See [USAGE.md](USAGE.md) for setup, schema refs and development notes, and
+[RELEASING.md](RELEASING.md) for the version convention used for generated typings.
 
 ## Acknowledgements
 

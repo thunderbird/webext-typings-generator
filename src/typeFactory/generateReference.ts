@@ -25,12 +25,13 @@ export const generateReferenceType = (
   const referenceLink = type.$ref.split(".");
   if (referenceLink.length === 1) {
     // if it's a reference to a type in the same namespace we need to check whether it exists or not
-    const localType = schemaCatalog[currentNamespace].types.find(
+    const localType = (schemaCatalog[currentNamespace]?.types || []).find(
       (someType) => isWithId(someType) && someType.id === type.$ref
     );
 
-    // check if the type is somewhere in the global scope
-    const manifestType = schemaCatalog["manifest"].types.find(
+    // check if the type is somewhere in the global scope; a schema set without a
+    // manifest namespace is unusual, but must not crash the run
+    const manifestType = (schemaCatalog["manifest"]?.types || []).find(
       (someType) => isWithId(someType) && someType.id === type.$ref
     );
 
@@ -56,9 +57,26 @@ export const generateReferenceType = (
         );
         type.$ref = `manifest.${type.$ref}`;
       } else {
-        console.warn(
-          `Warning: referenced type '${type.$ref}' not found in schema '${currentNamespace}'`
+        // not local nor in the manifest, so search the other namespaces and
+        // qualify the reference with whichever one owns it
+        const owningNamespace = Object.keys(schemaCatalog).find(
+          (namespace) =>
+            namespace !== currentNamespace &&
+            (schemaCatalog[namespace].types || []).some(
+              (someType) => isWithId(someType) && someType.id === type.$ref
+            )
         );
+
+        if (owningNamespace !== undefined) {
+          console.warn(
+            `Warning: schema incorrect, referenced local type: ${type.$ref} in '${currentNamespace}', but should reference ${owningNamespace}.${type.$ref}`
+          );
+          type.$ref = `${owningNamespace}.${type.$ref}`;
+        } else {
+          console.warn(
+            `Warning: referenced type '${type.$ref}' not found in schema '${currentNamespace}'`
+          );
+        }
       }
     }
   }
