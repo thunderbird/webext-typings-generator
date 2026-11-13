@@ -2,7 +2,14 @@
 
 Generates a TypeScript typings file (`.d.ts`) from Thunderbird's annotated API schema files, as provided in [thunderbird/webext-annotated-schemas](https://github.com/thunderbird/webext-annotated-schemas)
 
-## Usage
+## Using the typings
+
+The generated typings are published as [`@thunderbirdops/webext-types`](https://www.npmjs.com/package/@thunderbirdops/webext-types)
+and are available in [`typings/`](typings). Setup instructions for add-on developers are on
+[the project page](https://thunderbird.github.io/webext-typings-generator/). A workflow
+regenerates and publishes them whenever Thunderbird's schemas change.
+
+## Running the generator
 
 The generator fetches the schemas itself; pick a channel branch or a version tag:
 
@@ -11,19 +18,22 @@ npm install && npm run build
 node dist/cli.js --ref release-mv3 --outfile .out/messenger.d.ts --force
 ```
 
+<!-- latest-run:start -->
 ```
 Wrote .out/messenger.d.ts
-  Thunderbird version: 153.0.3
-  Package version:     153.0.0
+  Thunderbird version: X.Y.Z
+  Package version:     X.0.0
   Manifest version:    3
   Channel:             release
   Namespaces:          66
 ```
+<!-- latest-run:end -->
+
+The output above is rewritten by the update workflow with the values of its most recent run.
 
 Run `node dist/cli.js --help` for the full option list.
 
-See [USAGE.md](USAGE.md) for setup, schema refs and development notes, and
-[RELEASING.md](RELEASING.md) for the version convention used for generated typings.
+See [USAGE.md](USAGE.md) for schema refs and development notes.
 
 ## Acknowledgements
 

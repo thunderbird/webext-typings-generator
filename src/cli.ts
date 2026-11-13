@@ -76,8 +76,8 @@ Usage:
 
 Schema source (one is required):
   --ref <git-ref>      Fetch schemas from the schema repository at this branch
-                       or tag, for example 'release-mv3', 'esr-mv3' or
-                       '154.0b4-mv3'. The checkout is cached and reused.
+                       or tag, for example 'release-mv3', 'esr-mv3' or a
+                       version tag. The checkout is cached and reused.
   --schemaDir <dir>    Use schema files (*.json) already present in this
                        directory.
 
@@ -98,8 +98,8 @@ Examples:
   # current release channel, Manifest V3
   generate-webext-typings --ref release-mv3 --outfile .out/messenger.d.ts --force
 
-  # a specific Thunderbird beta, recording metadata for the release process
-  generate-webext-typings --ref 154.0b4-mv3 --outfile .out/messenger.d.ts \\
+  # a specific version tag, recording metadata for the release process
+  generate-webext-typings --ref <version-tag> --outfile .out/messenger.d.ts \\
     --metaFile .out/metadata.json --force
 `;
 

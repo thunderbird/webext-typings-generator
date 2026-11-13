@@ -1,50 +1,15 @@
 # Running the generator
 
-This tool reads the annotated Thunderbird WebExtension API schemas (`.json`) and writes a
-single TypeScript declaration file (`.d.ts`) describing the `messenger.*` and `browser.*`
-APIs.
+The generator reads the annotated Thunderbird WebExtension API schemas and writes a `.d.ts` file
+describing the `messenger.*` and `browser.*` APIs. The command is in the [README](README.md#running-the-generator).
 
-## 1. Prerequisites
+Requirements: Node.js (`.nvmrc` pins `lts/*`) and `git` on the `PATH`, which fetches the schemas.
+`node dist/cli.js --help` lists all options.
 
-- Node.js (the repo pins `lts/*` in `.nvmrc`)
-- `git` on `PATH` (used to fetch schemas)
+## Choosing a ref
 
-```sh
-nvm use          # optional, picks up .nvmrc
-npm install
-```
-
-## 2. Generate
-
-The generator fetches the schemas itself. Pick a ref from
-[`thunderbird/webext-annotated-schemas`](https://github.com/thunderbird/webext-annotated-schemas) and go:
-
-```sh
-npm run build
-node dist/cli.js --ref release-mv3 --outfile .out/messenger.d.ts --force
-```
-
-Output:
-
-```
-Fetching schemas: https://github.com/thunderbird/webext-annotated-schemas.git at release-mv3
-Wrote .out/messenger.d.ts
-  Thunderbird version: 153.0.3
-  Package version:     153.0.0
-  Manifest version:    3
-  Channel:             release
-  Namespaces:          66
-```
-
-The checkout is cached under `.schemas/<ref>/` and reused on later runs; pass `--refresh`
-to re-fetch.
-
-### Choosing a ref
-
-The schema repository encodes both the release channel and the manifest version in every
-branch and tag name.
-
-**Branches** — track a channel, so they move as Thunderbird ships:
+The generator fetches the schemas from [`thunderbird/webext-annotated-schemas`](https://github.com/thunderbird/webext-annotated-schemas).
+The checkout is cached under `.schemas/<ref>/`; pass `--refresh` to fetch it again.
 
 | Ref | Meaning |
 | --- | --- |
@@ -54,163 +19,40 @@ branch and tag name.
 | `daily-mv3` | daily builds, Manifest V3 |
 | `release-mv2`, `beta-mv2`, `esr-mv2` | the Manifest V2 equivalents |
 
-**Tags** — pin one exact version, so output is stable forever: `153.0b8-mv3`,
-`154.0b4-mv2`, `155.0a1-mv3`, …
+Branches move as Thunderbird ships. Tags pin one exact version: `X.0bN-mv3` for a beta, `X.0aN-mv3` for
+a daily build, and the same with `-mv2`.
 
-Use a branch for routine regeneration and a tag when you need a reproducible artifact.
+Manifest V2 and V3 produce different output (V2 has `browserAction`, `contentScripts` and flat
+`contacts`; V3 has `action`, `scripting` and `addressBooks.contacts`), so pick deliberately.
 
-Manifest V2 and V3 produce genuinely different output — V2 still has `browserAction`,
-`contentScripts`, `spacesToolbar` and flat `contacts`/`mailingLists` namespaces, where V3
-has `action`, `scripting` and nested `addressBooks.contacts`. Pick deliberately.
+`--schemaDir <dir>` uses schema files you already have instead of fetching. The ref, channel and manifest
+version are then not recorded in the header.
 
-### Options
+## Output
 
-| Flag | Description |
-| --- | --- |
-| `--ref <git-ref>` | Branch or tag to fetch schemas from. |
-| `--schemaDir <dir>` | Use schema files already present in a local directory instead of fetching. Mutually exclusive with `--ref`. |
-| `--outfile <file>` | Path of the `.d.ts` file to write. Required. |
-| `--metaFile <file>` | Also write generation metadata as JSON (see below). |
-| `--schemaRepo <url>` | Schema repository to fetch from. Defaults to `thunderbird/webext-annotated-schemas`. |
-| `--cacheDir <dir>` | Where to cache fetched schemas. Default `.schemas`. |
-| `--refresh` | Re-fetch even if the ref is already cached. |
-| `--force` | Create the output/schema directories if missing. |
-| `--help` | Print the help text. |
+Every generated file starts with a header naming the Thunderbird version, the schema ref and the
+schema commit. It has no timestamp on purpose: regenerating from the same schemas produces a
+byte-identical file, so a diff only shows real schema changes. `--metaFile <file>` writes the same facts
+as JSON.
 
-`--outfile` is always required, plus exactly one of `--ref` or `--schemaDir`. Supplying
-neither prints help; supplying both is an error. The command exits non-zero on failure.
+## Development
 
-### Using a local schema directory
-
-If you have already checked the schemas out yourself:
-
-```sh
-node dist/cli.js --schemaDir /path/to/webext-annotated-schemas/schema-files \
-  --outfile .out/messenger.d.ts --force
-```
-
-The Thunderbird version is still detected from the schemas, but the ref, channel and
-manifest version cannot be inferred and are omitted from the header.
-
-## 3. What the output looks like
-
-Every generated file starts with a header identifying exactly where it came from:
-
-```ts
-/**
- * Thunderbird WebExtension API typings
- *
- * Generated from the annotated WebExtension schemas. Do not edit by hand.
- *
- * Thunderbird version: 153.0.3
- * Manifest version:    3
- * Schema repository:   https://github.com/thunderbird/webext-annotated-schemas.git
- * Schema ref:          release-mv3
- * Schema commit:       fe40f9131ffcf06434956a1c8559c261e3a93d0d
- * Namespaces:          66
- * Generated by:        webext-typings-generator 0.1.0
- */
-```
-
-The header carries **no timestamp on purpose**: regenerating from the same schemas
-produces a byte-identical file, so a diff only ever shows real schema changes.
-
-### Metadata file
-
-`--metaFile` writes the same facts as JSON, for a release process to consume:
-
-```json
-{
-  "applicationVersion": "153.0.3",
-  "packageVersion": "153.0.0",
-  "manifestVersion": 3,
-  "channel": "release",
-  "schemaRepo": "https://github.com/thunderbird/webext-annotated-schemas.git",
-  "schemaRef": "release-mv3",
-  "schemaCommit": "fe40f9131ffcf06434956a1c8559c261e3a93d0d",
-  "generatorName": "webext-typings-generator",
-  "generatorVersion": "0.1.0",
-  "namespaceCount": 66,
-  "outfile": ".out/messenger.d.ts"
-}
-```
-
-See [RELEASING.md](RELEASING.md) for how `packageVersion` is derived.
-
-## 4. Use the generated file
-
-```ts
-/// <reference path="./messenger.d.ts" />
-
-const books = await messenger.addressBooks.list(true);
-const extId: string = messenger.runtime.id;
-```
-
-Both the `messenger.*` namespace and the `browser.*` alias namespace are declared, along
-with a `Window.messenger` property and a `WebExtEvent<T>` interface for event listeners.
-
-## 5. Development
-
-### Running from TypeScript source instead of the build
-
-`ts-node` is a dev dependency, so the `.ts` files run directly without a build step:
+Run the `.ts` files directly, without a build:
 
 ```sh
 npm run start:ts -- --ref release-mv3 --outfile .out/messenger.d.ts --force
-```
-
-Both paths produce byte-identical output:
-
-```sh
-npm run start:ts -- --ref release-mv3 --outfile /tmp/a.d.ts --force   # from .ts source
-npm start        -- --ref release-mv3 --outfile /tmp/b.d.ts --force   # from compiled dist
-diff /tmp/a.d.ts /tmp/b.d.ts                                          # no differences
-```
-
-Type-check without emitting:
-
-```sh
 npm run typecheck
 ```
 
-Note: relative imports inside `src/` must stay **extensionless** (`from "./index"`, not
-`from "./index.js"`). The project compiles to CommonJS, so `tsc` resolves an extensionless
-specifier to `dist/index.js` while `ts-node` resolves it to `src/index.ts`. Writing
-`"./index.js"` type-checks fine but breaks `start:ts` at runtime, because no
-`src/index.js` exists. `ts-node-esm` does not work here at all — it treats the source as
-ESM and will not resolve extensionless or `.ts` specifiers.
+Relative imports inside `src/` must stay **extensionless** (`from "./index"`, not `"./index.js"`). The
+project compiles to CommonJS, so `./index.js` type-checks fine but breaks `start:ts`, because no
+`src/index.js` exists.
 
-### Rebuilding
+## Expected warnings
 
-You do **not** need to delete `dist/` first — `tsc` overwrites its output. Only remove it
-if you have renamed or deleted a source file, since `tsc` leaves the orphan behind:
+A successful run prints these to stderr. None indicate failure:
 
-```sh
-rm -rf dist && npm run build
-```
-
-### Scratch directories
-
-`.out/`, `.schemas/` and `dist/` are all in `.gitignore`. Generated typings should not be
-committed — regenerate them from a ref instead.
-
-## Expected diagnostics
-
-A successful run prints these to stderr; none indicate failure:
-
-- `Warning: skipping unsupported property …` — the schema marks that property
-  `unsupported: true`, so it is intentionally excluded.
-- `Warning: schema incorrect, referenced local type: X in 'ns', but should reference
-  ns2.X` — the schema declares an unqualified `$ref` that lives in another namespace. The
-  generator resolves it and continues.
-- `Skipping non-json file permissions.ftl` — the schema repo ships one non-JSON file.
-- `Error: cannot access directory: .out` — printed when `--force` creates a missing
-  output directory.
-
-Verify a run by type-checking the result:
-
-```sh
-./node_modules/.bin/tsc --noEmit --lib es2016,dom --skipLibCheck .out/messenger.d.ts
-```
-
-Exit code `0` means the generated declaration file is valid TypeScript.
+- `skipping unsupported property …`: the schema marks it `unsupported: true`, so it is excluded.
+- `schema incorrect, referenced local type …`: the schema uses an unqualified `$ref` that lives in
+  another namespace. The generator resolves it.
+- `Skipping non-json file permissions.ftl`: the schema repository ships one non-JSON file.
