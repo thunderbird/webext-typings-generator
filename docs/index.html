@@ -144,7 +144,7 @@ console.log(input.value); // fine</code></pre>
   <footer>Add-on development for Thunderbird: <a href="https://developer.thunderbird.net/add-ons">developer.thunderbird.net</a></footer>
 </main>
 <script>
-// Shows which Thunderbird version and schema commit the files were generated from.
+// Shows which Thunderbird version the files were generated from.
 // Without metadata.json the page still works.
 (async () => {
   try {
@@ -155,14 +155,8 @@ console.log(input.value); // fine</code></pre>
       const m = metadata[mv];
       const element = document.getElementById("meta-" + mv);
       if (!m || !element) continue;
-      element.textContent = "";
-      element.append(
-        "Thunderbird " + m.applicationVersion + " · " + m.namespaceCount + " namespaces · schema commit "
-      );
-      const link = document.createElement("a");
-      link.textContent = String(m.schemaCommit).slice(0, 7);
-      link.href = String(m.schemaRepo).replace(/\.git$/, "") + "/commit/" + m.schemaCommit;
-      element.append(link);
+      element.textContent =
+        "Manifest V" + m.manifestVersion + " · Thunderbird " + m.applicationVersion + " · " + m.namespaceCount + " namespaces";
     }
   } catch (e) {
     /* metadata is optional */

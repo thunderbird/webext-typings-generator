@@ -40,5 +40,5 @@ now lists the available APIs.
 
 ## Versions
 
-The package version is the Thunderbird version the typings were generated from.
+The package version is the Thunderbird version at the time the typings last changed. A new package is only published when the typings change, so not every Thunderbird version has one.
 `metadata.json` records the exact schema commits used.
