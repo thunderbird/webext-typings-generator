@@ -56,13 +56,14 @@
   <p class="lead">Editor support for Thunderbird's WebExtension APIs: autocomplete, parameter hints and earlier error detection. Generated from the annotated API schemas, no TypeScript required.</p>
 
   <h2>Download</h2>
+  <p>The links open the file as text, use "Save link as" to download it.</p>
   <div class="downloads">
     <div class="card">
-      <strong><a href="mv3.d.ts">mv3.d.ts</a></strong>
+      <strong><a href="https://raw.githubusercontent.com/thunderbird/webext-typings-generator/main/typings/mv3.d.ts">mv3.d.ts</a></strong>
       <span class="meta" id="meta-mv3">Manifest V3</span>
     </div>
     <div class="card">
-      <strong><a href="mv2.d.ts">mv2.d.ts</a></strong>
+      <strong><a href="https://raw.githubusercontent.com/thunderbird/webext-typings-generator/main/typings/mv2.d.ts">mv2.d.ts</a></strong>
       <span class="meta" id="meta-mv2">Manifest V2</span>
     </div>
   </div>
@@ -79,7 +80,7 @@
   },
   "include": ["types/mv3.d.ts", "**/*.js"]
 }</code></pre>
-  <p>Then run <strong>TypeScript: Restart TS Server</strong> from the command palette. Typing <code>messenger.messages.</code> now lists the available APIs, and hovering a call shows its parameters and return type.</p>
+  <p>Then close and re-open VS Code. Typing <code>messenger.messages.</code> now lists the available APIs, and hovering a call shows its parameters and return type.</p>
 
   <h2>Use it from npm</h2>
 <pre><code>npm install --save-dev @thunderbird/webext-types</code></pre>
@@ -107,10 +108,10 @@ console.log(page.mesages);
 </main>
 <script>
 // Shows which Thunderbird version and schema commit the files were generated from.
-// metadata.json sits next to this page once it is deployed; without it the page still works.
+// Without metadata.json the page still works.
 (async () => {
   try {
-    const response = await fetch("metadata.json");
+    const response = await fetch("https://raw.githubusercontent.com/thunderbird/webext-typings-generator/main/typings/metadata.json");
     if (!response.ok) return;
     const metadata = await response.json();
     for (const mv of ["mv3", "mv2"]) {

@@ -1,8 +1,7 @@
 name: Update typings
 
-# Regenerates the typings from the annotated schemas and opens a pull request
-# when something changed. Merging the pull request is the review step; nothing
-# is published to npm from here.
+# Regenerates the typings from the annotated schemas, verifies them, and commits
+# the result when something changed. Nothing is published to npm from here.
 
 on:
   schedule:
@@ -11,7 +10,6 @@ on:
 
 permissions:
   contents: write
-  pull-requests: write
 
 concurrency:
   group: update-typings
@@ -44,24 +42,17 @@ jobs:
         if: steps.prepare.outputs.changed == 'true'
         run: node scripts/verify-typings.mjs
 
-      - name: Open or update the pull request
+      # The verification above is the gate, so the result goes straight to the branch.
+      - name: Commit and push
         if: steps.prepare.outputs.changed == 'true'
-        uses: peter-evans/create-pull-request@v7
-        with:
-          add-paths: |
-            typings
-            docs
-          branch: update-typings
-          delete-branch: true
-          commit-message: "Update typings to Thunderbird ${{ steps.prepare.outputs.application_version }}"
-          title: "Update typings to Thunderbird ${{ steps.prepare.outputs.application_version }}"
-          body: |
-            Regenerated from the annotated schemas (`release-mv3`, `release-mv2`).
-
-            - Thunderbird version: `${{ steps.prepare.outputs.application_version }}`
-            - Package version: `${{ steps.prepare.outputs.version }}`
-            - Changed: ${{ steps.prepare.outputs.changed_files }}
-
-            The declaration files compile and the API smoke test passed.
-            `docs/` holds copies of the files for the GitHub Page.
-            See `typings/metadata.json` for the exact schema commits.
+        env:
+          APPLICATION_VERSION: ${{ steps.prepare.outputs.application_version }}
+          PACKAGE_VERSION: ${{ steps.prepare.outputs.version }}
+          CHANGED_FILES: ${{ steps.prepare.outputs.changed_files }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add typings
+          git commit -m "Update typings to Thunderbird ${APPLICATION_VERSION}" \
+            -m "Package version ${PACKAGE_VERSION}. Changed: ${CHANGED_FILES}. See typings/metadata.json for the schema commits."
+          git push

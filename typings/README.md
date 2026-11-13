@@ -28,7 +28,7 @@ Add a `jsconfig.json` (or `tsconfig.json`) to the root of your add-on:
 }
 ```
 
-Then restart the TypeScript server in VS Code (**TypeScript: Restart TS Server**). Typing `messenger.messages.`
+Then close and re-open VS Code. Typing `messenger.messages.`
 now lists the available APIs.
 
 - `checkJs: false` gives completion and hover information without error squiggles. Set it to `true`, or put

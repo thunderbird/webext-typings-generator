@@ -6,8 +6,8 @@
 //
 // Writes typings/mv3.d.ts, typings/mv2.d.ts, typings/metadata.json and updates
 // the version in typings/package.json, but only if a declaration file changed.
-// The same files are copied to docs/, which GitHub Pages serves directly (the
-// page can only link to files inside docs/). typings/ stays the source of truth.
+// docs/ (GitHub Pages) links to the files in typings/ on the main branch, so
+// nothing is copied there.
 // Reports `changed`, `version` and `application_version` to $GITHUB_OUTPUT.
 
 import fs from "node:fs";
@@ -15,7 +15,6 @@ import path from "node:path";
 
 const OUT = ".out";
 const PKG_DIR = "typings";
-const DOCS_DIR = "docs";
 const MANIFEST_VERSIONS = ["mv3", "mv2"];
 
 const read = (file) => fs.readFileSync(file, "utf8");
@@ -85,8 +84,8 @@ if (changed) {
   fs.writeFileSync(pkgFile, JSON.stringify(pkg, null, 2) + "\n");
 }
 
-// The metadata is rewritten on its own, so the page also reflects a changed
-// schema commit when the declarations happen to be identical.
+// The metadata is rewritten on its own, so a changed schema commit is recorded
+// when the declarations happen to be identical.
 const publicMeta = {};
 for (const mv of MANIFEST_VERSIONS) {
   const { outfile, ...rest } = meta[mv];
@@ -97,15 +96,6 @@ const metadataText = JSON.stringify(publicMeta, null, 2) + "\n";
 if (metadataText !== readIfExists(metadataFile)) {
   fs.writeFileSync(metadataFile, metadataText);
   changed = true;
-}
-
-// Keep the Pages copies identical to the package files, whatever happened above.
-for (const file of [...MANIFEST_VERSIONS.map((mv) => `${mv}.d.ts`), "metadata.json"]) {
-  const target = path.join(DOCS_DIR, file);
-  if (read(path.join(PKG_DIR, file)) !== readIfExists(target)) {
-    fs.copyFileSync(path.join(PKG_DIR, file), target);
-    changed = true;
-  }
 }
 
 const result = {

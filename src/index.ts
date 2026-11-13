@@ -944,13 +944,16 @@ const isFile = async (file: string) => {
 
 const canAccessDirectory = async (
   directory: string,
-  flags: number = fs.constants.O_DIRECTORY
+  flags: number = fs.constants.O_DIRECTORY,
+  reportError: boolean = true
 ) => {
   try {
     await fs.access(directory, flags);
     return [directory, null];
   } catch (error) {
-    console.error(`Error: cannot access directory: ${directory}`);
+    if (reportError) {
+      console.error(`Error: cannot access directory: ${directory}`);
+    }
     return [null, error];
   }
 };
@@ -960,7 +963,8 @@ const ensureDirectory = async (
   flags: number = fs.constants.O_DIRECTORY
 ) => {
   try {
-    const [hasAccess, error] = await canAccessDirectory(dir, flags);
+    // A missing directory is not an error here, it is created below.
+    const [hasAccess, error] = await canAccessDirectory(dir, flags, false);
     if (hasAccess) {
       return [true, null];
     }
