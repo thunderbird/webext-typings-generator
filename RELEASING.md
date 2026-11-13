@@ -80,13 +80,13 @@ within fifteen minutes of each other, so V2 cannot simply be dropped. There is n
 **Recommended shape** — one package, one version, one entry point per manifest version:
 
 ```
-@thunderbird/webext-types      version 153.0.0
+@thunderbirdops/webext-types   version 153.0.0
   ├── mv3.d.ts                 (default, referenced by the "types" field)
   └── mv2.d.ts
 ```
 
 ```ts
-/// <reference types="@thunderbird/webext-types/mv3" />
+/// <reference types="@thunderbirdops/webext-types/mv3" />
 ```
 
 This dissolves the collision, because manifest version becomes a path rather than a
@@ -132,9 +132,22 @@ Nothing has been published to npm yet, so both names are still free to change.
 3. `scripts/verify-typings.mjs` checks that the files compile and that API typos are reported,
 4. commits the result to the branch the workflow runs on and pushes it.
 
-There is no manual review step: the verification in step 3 is the gate. Publishing to npm is not
-automated yet. The workflow only needs `contents: write`, and fails if the branch is protected
-against direct pushes.
+5. if a declaration file changed (not for a metadata-only change, which keeps the version), a second job
+   publishes `typings/` to npm as `@thunderbirdops/webext-types`.
+
+There is no manual review step: the verification in step 3 is the gate. The first job needs
+`contents: write` and fails if the branch is protected against direct pushes.
+
+### npm publishing setup (once)
+
+Publishing uses npm trusted publishing (OIDC), the same way as `thunderbird/services-ui`, so there is no
+npm token. Required:
+
+- a GitHub environment named `npm` in this repository (Settings, Environments),
+- the package on npmjs.com (first publish by hand), with a trusted publisher configured in its settings:
+  this repository, workflow file `update-typings.yml`, environment `npm`.
+
+Until that is done, the publish job fails after a change; the commit to `typings/` is already made by then.
 
 The package version is the Thunderbird major (`160.0.0`). Schemas change within a major as well, and npm
 refuses to publish a version twice, so every further change within the same major bumps the patch

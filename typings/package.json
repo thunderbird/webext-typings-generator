@@ -1,5 +1,5 @@
 {
-  "name": "@thunderbird/webext-types",
+  "name": "@thunderbirdops/webext-types",
   "version": "160.0.0",
   "description": "TypeScript typings for Thunderbird's WebExtension APIs (messenger.*), generated from the annotated API schemas",
   "types": "./mv3.d.ts",

@@ -18,6 +18,9 @@ concurrency:
 jobs:
   update:
     runs-on: ubuntu-latest
+    outputs:
+      publish: ${{ steps.prepare.outputs.publish }}
+      sha: ${{ steps.push.outputs.sha }}
     steps:
       - uses: actions/checkout@v4
 
@@ -44,6 +47,7 @@ jobs:
 
       # The verification above is the gate, so the result goes straight to the branch.
       - name: Commit and push
+        id: push
         if: steps.prepare.outputs.changed == 'true'
         env:
           APPLICATION_VERSION: ${{ steps.prepare.outputs.application_version }}
@@ -56,3 +60,34 @@ jobs:
           git commit -m "Update typings to Thunderbird ${APPLICATION_VERSION}" \
             -m "Package version ${PACKAGE_VERSION}. Changed: ${CHANGED_FILES}. See typings/metadata.json for the schema commits."
           git push
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+  # Publishes the commit made above. Uses npm trusted publishing (OIDC), so there
+  # is no npm token: the package on npmjs.com must list this repository, this
+  # workflow file and the "npm" environment as its trusted publisher.
+  publish:
+    needs: update
+    if: needs.update.outputs.publish == 'true'
+    runs-on: ubuntu-latest
+    environment:
+      name: npm
+      url: https://www.npmjs.com/package/@thunderbirdops/webext-types
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.update.outputs.sha }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          registry-url: https://registry.npmjs.org/
+
+      # Trusted publishing needs a recent npm.
+      - name: Update npm
+        run: npm install -g npm@latest
+
+      - name: Publish to npm
+        run: npm publish ./typings --access public

@@ -9,7 +9,7 @@ parameter hints and return information in editors such as VS Code.
 ## Use
 
 ```sh
-npm install --save-dev @thunderbird/webext-types
+npm install --save-dev @thunderbirdops/webext-types
 ```
 
 Add a `jsconfig.json` (or `tsconfig.json`) to the root of your add-on:
@@ -22,7 +22,7 @@ Add a `jsconfig.json` (or `tsconfig.json`) to the root of your add-on:
     "moduleResolution": "bundler",
     "checkJs": false,
     "lib": ["es2022", "dom"],
-    "types": ["@thunderbird/webext-types"]
+    "types": ["@thunderbirdops/webext-types"]
   },
   "include": ["**/*.js"]
 }
@@ -33,7 +33,7 @@ now lists the available APIs.
 
 - `checkJs: false` gives completion and hover information without error squiggles. Set it to `true`, or put
   `// @ts-check` at the top of a file, to also get type errors.
-- Manifest V2 add-ons use `"types": ["@thunderbird/webext-types/mv2"]` instead.
+- Manifest V2 add-ons use `"types": ["@thunderbirdops/webext-types/mv2"]` instead.
 - Custom Experiment APIs of your own add-on are not known to these typings and need a small declaration file.
 - Do not combine these typings with another package that declares `browser` or `messenger`, for example
   `@types/firefox-webext-browser`.

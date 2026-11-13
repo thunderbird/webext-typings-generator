@@ -8,7 +8,9 @@
 // the version in typings/package.json, but only if a declaration file changed.
 // docs/ (GitHub Pages) links to the files in typings/ on the main branch, so
 // nothing is copied there.
-// Reports `changed`, `version` and `application_version` to $GITHUB_OUTPUT.
+// Reports `changed`, `publish`, `version` and `application_version` to
+// $GITHUB_OUTPUT. `publish` is only true when a declaration file changed, because
+// only then the package version is bumped (npm refuses to publish a version twice).
 
 import fs from "node:fs";
 import path from "node:path";
@@ -100,6 +102,7 @@ if (metadataText !== readIfExists(metadataFile)) {
 
 const result = {
   changed: String(changed),
+  publish: String(changedFiles.length > 0),
   version,
   application_version: meta.mv3.applicationVersion,
   changed_files: changedFiles.join(",") || "metadata only",
