@@ -10,11 +10,7 @@ import ts from "typescript";
 
 import { createSingleTyping } from "./typeFactory";
 import { SingleType, WebExtensionSchemaMapping } from "./typeFactory/types";
-import {
-  SchemaSource,
-  detectApplicationVersion,
-  packageVersionFor,
-} from "./schemaSource";
+import { SchemaSource, detectApplicationVersion } from "./schemaSource";
 import {
   isArrayType,
   isBooleanType,
@@ -706,7 +702,6 @@ function bootstrapGlobalInterfaces(factory: ts.NodeFactory): ts.Statement[] {
 
 export type GenerationMetadata = {
   applicationVersion: string | null;
-  packageVersion: string | null;
   manifestVersion: number | null;
   channel: string | null;
   schemaRepo: string | null;
@@ -913,7 +908,6 @@ const generateTypingsFromSchema = async (
   const generator = await readGeneratorIdentity();
   const metadata: GenerationMetadata = {
     applicationVersion,
-    packageVersion: packageVersionFor(applicationVersion),
     manifestVersion: schemaSource.manifestVersion,
     channel: schemaSource.channel,
     schemaRepo: schemaSource.repo,

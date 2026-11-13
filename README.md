@@ -22,14 +22,13 @@ node dist/cli.js --ref release-mv3 --outfile .out/messenger.d.ts --force
 ```
 Wrote .out/messenger.d.ts
   Thunderbird version: 160.0.1
-  Package version:     160.0.0
   Manifest version:    3
   Channel:             release
   Namespaces:          66
 ```
 <!-- latest-run:end -->
 
-The output above is rewritten by the update workflow with the values of its most recent run.
+The output above is rewritten by the update workflow whenever the typings change.
 
 Run `node dist/cli.js --help` for the full option list.
 

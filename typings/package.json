@@ -1,6 +1,6 @@
 {
   "name": "@thunderbirdops/webext-types",
-  "version": "160.0.0",
+  "version": "160.0.1",
   "description": "Typings for Thunderbird's WebExtension APIs (messenger.* and browser.*), for add-ons written in JavaScript or TypeScript",
   "types": "./mv3.d.ts",
   "exports": {

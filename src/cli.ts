@@ -145,7 +145,6 @@ const main = async () => {
       [
         `Wrote ${metadata.outfile}`,
         `  Thunderbird version: ${metadata.applicationVersion ?? "unknown"}`,
-        `  Package version:     ${metadata.packageVersion ?? "unknown"}`,
         metadata.manifestVersion
           ? `  Manifest version:    ${metadata.manifestVersion}`
           : null,

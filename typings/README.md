@@ -40,6 +40,5 @@ now lists the available APIs.
 
 ## Versions
 
-The major version is the Thunderbird major version the typings were generated from. Further releases within
-a major only change the patch number.
+The package version is the Thunderbird version the typings were generated from.
 `metadata.json` records the exact schema commits used.

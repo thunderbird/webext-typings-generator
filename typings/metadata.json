@@ -1,7 +1,6 @@
 {
   "mv3": {
     "applicationVersion": "160.0.1",
-    "packageVersion": "160.0.0",
     "manifestVersion": 3,
     "channel": "release",
     "schemaRepo": "https://github.com/thunderbird/webext-annotated-schemas.git",
@@ -13,7 +12,6 @@
   },
   "mv2": {
     "applicationVersion": "160.0.1",
-    "packageVersion": "160.0.0",
     "manifestVersion": 2,
     "channel": "release",
     "schemaRepo": "https://github.com/thunderbird/webext-annotated-schemas.git",

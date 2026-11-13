@@ -162,33 +162,3 @@ export const detectApplicationVersion = (
 
   return null;
 };
-
-export const packageVersionFor = (
-  applicationVersion: string | null
-): string | null => {
-  if (!applicationVersion) {
-    return null;
-  }
-
-  // one format per channel: 153.0.3 release, 153.0.3esr esr, 154.0b4 beta,
-  // 155.0a1 daily
-  const parsed = /^(\d+)\.(\d+)(?:\.(\d+))?(?:([ab])(\d+))?(esr)?$/.exec(
-    applicationVersion
-  );
-
-  if (!parsed) {
-    console.warn(
-      `Warning: unrecognised applicationVersion '${applicationVersion}', ` +
-        `cannot derive a package version`
-    );
-    return null;
-  }
-
-  const [, major, , , prereleaseKind, prereleaseNumber] = parsed;
-
-  // only the major maps into semver: release 153.0.3 and esr 153.0.3esr would
-  // otherwise collide, as would the mv2 and mv3 builds of either
-  return prereleaseKind
-    ? `${major}.0.0-${prereleaseKind}${prereleaseNumber}`
-    : `${major}.0.0`;
-};
