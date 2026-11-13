@@ -1,0 +1,124 @@
+// Turns the generator output in .out/ into the publishable package in typings/.
+//
+// Expects (written by the generator, see .github/workflows/update-typings.yml):
+//   .out/mv3.d.ts  .out/mv3.meta.json
+//   .out/mv2.d.ts  .out/mv2.meta.json
+//
+// Writes typings/mv3.d.ts, typings/mv2.d.ts, typings/metadata.json and updates
+// the version in typings/package.json, but only if a declaration file changed.
+// The same files are copied to docs/, which GitHub Pages serves directly (the
+// page can only link to files inside docs/). typings/ stays the source of truth.
+// Reports `changed`, `version` and `application_version` to $GITHUB_OUTPUT.
+
+import fs from "node:fs";
+import path from "node:path";
+
+const OUT = ".out";
+const PKG_DIR = "typings";
+const DOCS_DIR = "docs";
+const MANIFEST_VERSIONS = ["mv3", "mv2"];
+
+const read = (file) => fs.readFileSync(file, "utf8");
+const readIfExists = (file) => (fs.existsSync(file) ? read(file) : null);
+
+const parseVersion = (version) => {
+  const match = /^(\d+)\.(\d+)\.(\d+)$/.exec(version);
+  if (!match) {
+    throw new Error(
+      `Unsupported version "${version}": only plain x.y.z releases are published ` +
+        `from this workflow (beta/daily need an npm dist-tag, see RELEASING.md).`
+    );
+  }
+  return match.slice(1).map(Number);
+};
+
+const compare = (a, b) => {
+  for (let i = 0; i < 3; i++) {
+    if (a[i] !== b[i]) return a[i] - b[i];
+  }
+  return 0;
+};
+
+const meta = {};
+for (const mv of MANIFEST_VERSIONS) {
+  meta[mv] = JSON.parse(read(path.join(OUT, `${mv}.meta.json`)));
+}
+
+// Both files must come from the same Thunderbird version, otherwise a single
+// package version would be misleading.
+const appVersions = new Set(
+  MANIFEST_VERSIONS.map((mv) => meta[mv].applicationVersion)
+);
+if (appVersions.size !== 1) {
+  throw new Error(
+    `mv3 and mv2 schemas are from different Thunderbird versions ` +
+      `(${[...appVersions].join(" vs ")}). Try again later, the schema branches ` +
+      `are probably being updated.`
+  );
+}
+
+const changedFiles = MANIFEST_VERSIONS.filter(
+  (mv) => read(path.join(OUT, `${mv}.d.ts`)) !== readIfExists(path.join(PKG_DIR, `${mv}.d.ts`))
+);
+
+const pkgFile = path.join(PKG_DIR, "package.json");
+const pkg = JSON.parse(read(pkgFile));
+const base = meta.mv3.packageVersion;
+let version = pkg.version;
+let changed = changedFiles.length > 0;
+
+if (changed) {
+  // The package version follows the Thunderbird major (160.0.1 -> 160.0.0).
+  // Schemas change within a major as well, and npm refuses to publish a
+  // version twice, so any further change bumps the patch number.
+  const baseParts = parseVersion(base);
+  const currentParts = parseVersion(pkg.version);
+  version =
+    compare(currentParts, baseParts) < 0
+      ? base
+      : `${currentParts[0]}.${currentParts[1]}.${currentParts[2] + 1}`;
+
+  for (const mv of MANIFEST_VERSIONS) {
+    fs.copyFileSync(path.join(OUT, `${mv}.d.ts`), path.join(PKG_DIR, `${mv}.d.ts`));
+  }
+  pkg.version = version;
+  fs.writeFileSync(pkgFile, JSON.stringify(pkg, null, 2) + "\n");
+}
+
+// The metadata is rewritten on its own, so the page also reflects a changed
+// schema commit when the declarations happen to be identical.
+const publicMeta = {};
+for (const mv of MANIFEST_VERSIONS) {
+  const { outfile, ...rest } = meta[mv];
+  publicMeta[mv] = rest;
+}
+const metadataFile = path.join(PKG_DIR, "metadata.json");
+const metadataText = JSON.stringify(publicMeta, null, 2) + "\n";
+if (metadataText !== readIfExists(metadataFile)) {
+  fs.writeFileSync(metadataFile, metadataText);
+  changed = true;
+}
+
+// Keep the Pages copies identical to the package files, whatever happened above.
+for (const file of [...MANIFEST_VERSIONS.map((mv) => `${mv}.d.ts`), "metadata.json"]) {
+  const target = path.join(DOCS_DIR, file);
+  if (read(path.join(PKG_DIR, file)) !== readIfExists(target)) {
+    fs.copyFileSync(path.join(PKG_DIR, file), target);
+    changed = true;
+  }
+}
+
+const result = {
+  changed: String(changed),
+  version,
+  application_version: meta.mv3.applicationVersion,
+  changed_files: changedFiles.join(",") || "metadata only",
+};
+console.log(result);
+
+if (process.env.GITHUB_OUTPUT) {
+  fs.appendFileSync(
+    process.env.GITHUB_OUTPUT,
+    Object.entries(result).map(([k, v]) => `${k}=${v}\n`).join("")
+  );
+}

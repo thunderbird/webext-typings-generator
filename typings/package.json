@@ -1,0 +1,28 @@
+{
+  "name": "@thunderbird/webext-types",
+  "version": "0.0.0",
+  "description": "TypeScript typings for Thunderbird's WebExtension APIs (messenger.*), generated from the annotated API schemas",
+  "types": "./mv3.d.ts",
+  "exports": {
+    ".": { "types": "./mv3.d.ts" },
+    "./mv3": { "types": "./mv3.d.ts" },
+    "./mv2": { "types": "./mv2.d.ts" },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "mv3.d.ts",
+    "mv2.d.ts",
+    "metadata.json"
+  ],
+  "keywords": ["thunderbird", "webextension", "typescript", "typings", "messenger"],
+  "license": "MPL-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thunderbird/webext-typings-generator.git",
+    "directory": "typings"
+  },
+  "bugs": {
+    "url": "https://github.com/thunderbird/webext-typings-generator/issues"
+  },
+  "homepage": "https://github.com/thunderbird/webext-typings-generator#readme"
+}

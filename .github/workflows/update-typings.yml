@@ -1,0 +1,67 @@
+name: Update typings
+
+# Regenerates the typings from the annotated schemas and opens a pull request
+# when something changed. Merging the pull request is the review step; nothing
+# is published to npm from here.
+
+on:
+  schedule:
+    - cron: "17 5 * * 1" # Mondays, 05:17 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: update-typings
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Build the generator
+        run: npm ci && npm run build
+
+      - name: Generate typings for both manifest versions
+        run: |
+          node dist/cli.js --ref release-mv3 --outfile .out/mv3.d.ts --metaFile .out/mv3.meta.json --refresh --force
+          node dist/cli.js --ref release-mv2 --outfile .out/mv2.d.ts --metaFile .out/mv2.meta.json --refresh --force
+
+      - name: Update the typings package
+        id: prepare
+        run: node scripts/prepare-typings.mjs
+
+      - name: Verify the typings
+        if: steps.prepare.outputs.changed == 'true'
+        run: node scripts/verify-typings.mjs
+
+      - name: Open or update the pull request
+        if: steps.prepare.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          add-paths: |
+            typings
+            docs
+          branch: update-typings
+          delete-branch: true
+          commit-message: "Update typings to Thunderbird ${{ steps.prepare.outputs.application_version }}"
+          title: "Update typings to Thunderbird ${{ steps.prepare.outputs.application_version }}"
+          body: |
+            Regenerated from the annotated schemas (`release-mv3`, `release-mv2`).
+
+            - Thunderbird version: `${{ steps.prepare.outputs.application_version }}`
+            - Package version: `${{ steps.prepare.outputs.version }}`
+            - Changed: ${{ steps.prepare.outputs.changed_files }}
+
+            The declaration files compile and the API smoke test passed.
+            `docs/` holds copies of the files for the GitHub Page.
+            See `typings/metadata.json` for the exact schema commits.

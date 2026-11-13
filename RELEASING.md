@@ -122,9 +122,19 @@ binary is `generate-webext-typings`. Upstream called the binary
 
 Nothing has been published to npm yet, so both names are still free to change.
 
-## Not automated
+## Automation
 
-There is no CI. Regeneration is a manual step someone has to remember, which is exactly
-how the DefinitelyTyped package fell 26 releases behind. A scheduled job that watches the
-channel branches, regenerates, type-checks and opens a PR on any diff is the piece that
-would keep this current — it depends on the open decisions above.
+`.github/workflows/update-typings.yml` runs weekly (and on demand) and does the following:
+
+1. builds the generator and generates `mv3` and `mv2` from the `release-mv3` / `release-mv2` branches,
+2. `scripts/prepare-typings.mjs` writes the result to `typings/` (the npm package) and copies it to `docs/`
+   (served by GitHub Pages), only if something changed,
+3. `scripts/verify-typings.mjs` checks that the files compile and that API typos are reported,
+4. opens a pull request with the changes.
+
+Merging the pull request is the review step. Publishing to npm is not automated yet.
+
+The package version is the Thunderbird major (`160.0.0`). Schemas change within a major as well, and npm
+refuses to publish a version twice, so every further change within the same major bumps the patch
+(`160.0.1`, ...). The repository needs "Allow GitHub Actions to create and approve pull requests" enabled in
+its Actions settings. Pull requests opened with the default token do not start other workflows.
