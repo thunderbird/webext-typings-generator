@@ -1,12 +1,19 @@
 name: Update typings
 
 # Regenerates the typings from the annotated schemas, verifies them, commits the
-# result when something changed, and publishes a new version to npm.
+# result when something changed, and publishes a new version to npm. A manual run
+# can tick "force" to release a new Thunderbird version whose declarations are
+# identical to the published ones.
 
 on:
   schedule:
     - cron: "17 5 * * 1" # Mondays, 05:17 UTC
   workflow_dispatch:
+    inputs:
+      force:
+        description: Release even if the declarations did not change
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -39,6 +46,8 @@ jobs:
 
       - name: Update the typings package
         id: prepare
+        env:
+          FORCE_PUBLISH: ${{ inputs.force }}
         run: node scripts/prepare-typings.mjs
 
       - name: Verify the typings

@@ -13,7 +13,9 @@
 // It also rewrites the example output in README.md (between the latest-run
 // markers) with the values of this run.
 // If the declarations (everything below the header comment) are identical to
-// the committed ones, nothing is touched: no commit, no release.
+// the committed ones, nothing is touched: no commit, no release. Setting
+// FORCE_PUBLISH=true (the "force" input of a manual workflow run) overrides that,
+// so a new Thunderbird version is still released.
 // Reports `changed`, `publish`, `version` and `application_version` to
 // $GITHUB_OUTPUT. `publish` is true when the declarations changed and the
 // Thunderbird version is new, because npm refuses to publish a version twice.
@@ -24,6 +26,8 @@ import path from "node:path";
 const OUT = ".out";
 const PKG_DIR = "typings";
 const MANIFEST_VERSIONS = ["mv3", "mv2"];
+
+const force = process.env.FORCE_PUBLISH === "true";
 
 const read = (file) => fs.readFileSync(file, "utf8");
 const readIfExists = (file) => (fs.existsSync(file) ? read(file) : null);
@@ -99,7 +103,7 @@ const report = (result) => {
   }
 };
 
-if (noNewDeclarations) {
+if (noNewDeclarations && !force) {
   // Nothing to commit and nothing to release, even if Thunderbird has a new
   // version. The next release with changed declarations carries its version.
   report({
