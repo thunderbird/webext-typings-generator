@@ -1,22 +1,22 @@
 {
   "mv3": {
-    "applicationVersion": "160.0.1",
+    "applicationVersion": "161.0",
     "manifestVersion": 3,
     "channel": "release",
     "schemaRepo": "https://github.com/thunderbird/webext-annotated-schemas.git",
     "schemaRef": "release-mv3",
-    "schemaCommit": "12bd641516e30ac5390610980ff9a631b983ae6b",
+    "schemaCommit": "fdeaabc873b65fa586e76ec5882b027871e0cceb",
     "generatorName": "webext-typings-generator",
     "generatorVersion": "0.1.0",
     "namespaceCount": 66
   },
   "mv2": {
-    "applicationVersion": "160.0.1",
+    "applicationVersion": "161.0",
     "manifestVersion": 2,
     "channel": "release",
     "schemaRepo": "https://github.com/thunderbird/webext-annotated-schemas.git",
     "schemaRef": "release-mv2",
-    "schemaCommit": "506a7252c45f1baeeb163fca72405d58dd9059c9",
+    "schemaCommit": "60fec0da5c7147b47e947680fcb727c910b5034c",
     "generatorName": "webext-typings-generator",
     "generatorVersion": "0.1.0",
     "namespaceCount": 68

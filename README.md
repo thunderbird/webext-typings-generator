@@ -21,7 +21,7 @@ node dist/cli.js --ref release-mv3 --outfile .out/messenger.d.ts --force
 <!-- latest-run:start -->
 ```
 Wrote .out/messenger.d.ts
-  Thunderbird version: 160.0.1
+  Thunderbird version: 161.0
   Manifest version:    3
   Channel:             release
   Namespaces:          66
